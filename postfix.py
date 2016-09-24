@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # postfix.py - a postfix calculator for python 2 & 3
-# version 6    2016-09-24
+# version 7    2016-09-25
 
-import string, math, sys
+import string, sys
+import cmath, math
 import inspect
 import readline
 
@@ -14,12 +15,12 @@ def countFunctionArguments(func):
 
 def is_number(s):
 	try:
-		float(s)
+		complex(s)
 		return True
 	except ValueError:
 		return False
 
-variables = {'pi':math.pi, 'e':math.e, '\\':1.0}
+variables = {'pi':math.pi, 'e':math.e, 'i':1.0j, '\\':1.0}
 def variableAssign(a,b):
 	variables[a] = variables[b] if b in variables else b
 	if a[0] == '-':
@@ -34,26 +35,32 @@ OPERATIONS = {
 	'/' : lambda a,b:b/a,
 	'*' : lambda a,b:a*b,
 	'**' : lambda a,b:b**a,
-	'sin' : lambda a:math.sin(a),
-	'cos' : lambda a:math.cos(a),
-	'tan' : lambda a:math.tan(a),
-	'atan' : lambda a:math.atan(a),
-	'asin' : lambda a:math.asin(a),
-	'acos' : lambda a:math.acos(a),
+	'sin' : lambda a:cmath.sin(a),
+	'cos' : lambda a:cmath.cos(a),
+	'tan' : lambda a:cmath.tan(a),
+	'atan' : lambda a:cmath.atan(a),
+	'asin' : lambda a:cmath.asin(a),
+	'acos' : lambda a:cmath.acos(a),
 	'sqrt' : lambda a:a**0.5,
 	'%' : lambda a,b:b%a,
-	'ln' : lambda a:math.log(a),
-	'log' : lambda a,b:math.log(b,a),
-	'rad' : lambda a:math.radians(a),
-	'deg' : lambda a:math.degrees(a),
+	'ln' : lambda a:cmath.log(a),
+	'log' : lambda a,b:cmath.log(b,a),
+	'rad' : lambda a:math.radians(a.real),
+	'deg' : lambda a:math.degrees(a.real),
+	
+	'arg' : lambda a:cmath.phase(a),
+	'abs' : lambda a:(a.real*a.real + a.imag*a.imag)**0.5,
+	'Re' : lambda a:a.real,
+	'Im' : lambda a:a.imag,
+	
 	'=' : variableAssign
 }
 
 def executeOp(opid, args):
 	if opid == '=':
-		return OPERATIONS[opid](*[float(i) if is_number(i) else i for i in args])
+		return OPERATIONS[opid](*[complex(i) if is_number(i) else i for i in args])
 	else:
-		return OPERATIONS[opid](*[float(variables[i]) if i in variables else float(i) for i in args])
+		return OPERATIONS[opid](*[complex(variables[i]) if i in variables else complex(i) for i in args])
 
 def doPostfix(postfix_string):
 	calc = postfix_string.split(' ')
@@ -73,11 +80,15 @@ def doPostfix(postfix_string):
 		else:
 			stack.append(i)
 	if len(stack) == 1:
-		variables['\\'] = float([variables[elm] if elm in variables else elm for elm in stack][0])
+		variables['\\'] = complex([variables[elm] if elm in variables else elm for elm in stack][0])
 	return [variables[elm] if elm in variables else elm for elm in stack]
 
+def outputResult(result):
+	return ', '.join([str(complex(item)) if complex(item).imag != 0 else str(complex(item).real) for item in output])
+	
+
 if __name__ == '__main__':
-	print('saucecode\'s postfix v6    2016-09-24')
+	print('saucecode\'s postfix v7    2016-09-25')
 
 	try:
 		raw_input
@@ -87,7 +98,7 @@ if __name__ == '__main__':
 	while 1:
 		try:
 			output = doPostfix(raw_input('> '))
-			print(' '.join([str(item) for item in output]))
+			print(outputResult(output))
 		except TypeError as e:
 			print('')
 			continue
