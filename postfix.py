@@ -20,7 +20,7 @@ def is_number(s):
 	except ValueError:
 		return False
 
-variables = {'pi':math.pi, 'e':math.e, 'i':1.0j, '\\':1.0}
+variables = {'pi':math.pi, '-pi':-math.pi, 'e':math.e, '-e':math.e, 'i':1.0j, '-i':-1.0j, '\\':1.0}
 def variableAssign(a,b):
 	variables[a] = variables[b] if b in variables else b
 	if a[0] == '-':
