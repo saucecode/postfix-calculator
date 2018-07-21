@@ -233,7 +233,7 @@ def units_string(units_d : dict):
 	
 	output = ''
 	count = 0
-	for key in sorted(units_d, key=lambda v:['kg','m','s','K'].index(v)):
+	for key in sorted(units_d, key=lambda v:['kg','m','s','K', 'C'].index(v)):
 		if units_d[key] == 0: continue
 		if units_d[key] > 0:
 			if units_d[key] == 1:
