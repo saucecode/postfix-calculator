@@ -6,12 +6,14 @@ An awesome [postfix (RPN)](https://en.wikipedia.org/wiki/Reverse_Polish_notation
 Supports commands `+ - * / ** % sqrt sin cos tan asin acos atan ln log rad deg Re Im =`  
 Trigonometry is done in radians. Use `rad` and `deg` to convert to radians and degrees respectively.
 
+**Dimensional analysis and dimensioned number support added as of version 8.**
+
 Numbers can be input in Python's `a+bj` format. Comes with `pi`, `e`, and `i` as variables. The answer of the last operation is put into variable `\`.
 
 ### Commands
 **Variable Assignment** -- The answer of the last operation is put into `\`
 
-    > 2 pi * angle =         ; angle = 2*pi
+    > 2 pi * tau =           ; tau = 2*pi
      6.28318530718
     
     > tau cos                ; cos(tau)
@@ -33,6 +35,30 @@ Numbers can be input in Python's `a+bj` format. Comes with `pi`, `e`, and `i` as
     
     > 1 2 sqrt /             ; 1/sqrt(2)
      0.707106781187
+
+**Dimensioned Numbers**
+
+The calculator supports meters, seconds, kilograms, Kelvin, and Coulomb as `m, s, kg, K, C`
+
+    > 10kg 4s massflow =     ; massflow = 10/4 kg/s
+     2.5kg/s
+    
+    > massflow 1.52kg/m^3 /  ; 2.5kg/s / 1.52 kg/m^3 = 1.645m^3/s
+     1.644736842105263m^3/s
+    
+    > 1.005kg.m^2/s^2/kg/K Cp = ; Specific Heat of Water: 1.005 J/(kg K)
+    > Cp massflow * 80s * 35K * ; 1.005 J/(kg K) * 2.5 kg/s * 80 s * 35 K = 7035 J
+     7035kg.m^2/s^2.0
+    
+    > 4m/s 3s **                ; (4 m/s) ^ (3s) -- Issues a warning
+     64m/s
+    
+    > 10kg 20s +                ; 10 kg + 20 s -- Issues a warning
+     30kg
+
+The calculator will only warn when dimensions are potentially misused. It will still return an answer, with either no dimensions, or the dimension of the left-most symbol.
+
+You can also put dimensions on complex numbers, if you're feeling particularly devilish. There will be no warnings.
 
 **Logarithms**
 
@@ -70,3 +96,5 @@ Numbers can be input in Python's `a+bj` format. Comes with `pi`, `e`, and `i` as
 ### Changelog
 **version 7**
  - Added complex numbers suport
+**version 8**
+ - Added dimensional analysis
