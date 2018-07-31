@@ -254,17 +254,32 @@ def units_string(units_d : dict):
 def outputResult(result):
 	return ', '.join([ (str(complex(item.value)) if complex(item.value).imag != 0 else str(complex(item.value).real)) + units_string(item.dims) for item in result])
 
-if __name__ == '__main__':
-	print('saucecode\'s postfix v8-beta    2018-07-21')
-	# e = '3 4 * 1 - 1+1j *'.split(' ')
+def generate_symbols(instr : str):
+	symbols = [Symbol(i) for i in instr.split(' ')]
+		
+	for index,sym in enumerate(symbols):
+		if sym.type == 'variable' and (index+1 >= len(symbols) or not symbols[index+1].value == '=') and sym.value in variables:
+			symbols[index] = variables[sym.value]
 	
-	variables = {
-		'pi': Symbol(str(cmath.pi)),
-		'-pi': Symbol(str(-cmath.pi)),
-		'e': Symbol(str(cmath.e)),
-		'-e': Symbol(str(-cmath.e)),
-		'\\': Symbol('0')
-	}
+	return symbols
+
+variables = {
+	'pi': Symbol(str(cmath.pi)),
+	'-pi': Symbol(str(-cmath.pi)),
+	'e': Symbol(str(cmath.e)),
+	'-e': Symbol(str(-cmath.e)),
+	'\\': Symbol('0')
+}
+
+def quickly(s : str):
+	# string comes in, string goes out. put this on your chatbot. maintains variables state
+	symbols_result = do_postfix( generate_symbols(s) )
+	result = outputResult( symbols_result )
+	variableAssign(symbols_result[0], Symbol('\\'))
+	return result
+
+if __name__ == '__main__':
+	print('saucecode\'s postfix v8-beta    2018-07-31')
 	
 	'''
 	tests = [
@@ -292,11 +307,7 @@ if __name__ == '__main__':
 	while 1:
 		userinput = input('>> ')
 		if not userinput: continue
-		symbols = [Symbol(i) for i in userinput.split(' ')]
-		
-		for index,sym in enumerate(symbols):
-			if sym.type == 'variable' and (index+1 >= len(symbols) or not symbols[index+1].value == '=') and sym.value in variables:
-				symbols[index] = variables[sym.value]
+		symbols = generate_symbols(userinput)
 		
 		symbols = do_postfix(symbols)
 		print(outputResult(symbols))
