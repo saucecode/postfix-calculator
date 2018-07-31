@@ -40,7 +40,7 @@ Numbers can be input in Python's `a+bj` format. Comes with `pi`, `e`, and `i` as
 
 The calculator supports meters, seconds, kilograms, Kelvin, and Coulomb as `m, s, kg, K, C`
 
-    > 10kg 4s massflow =     ; massflow = 10/4 kg/s
+    > 10kg 4s / massflow =     ; massflow = 10/4 kg/s
      2.5kg/s
     
     > massflow 1.52kg/m^3 /  ; 2.5kg/s / 1.52 kg/m^3 = 1.645m^3/s
@@ -96,5 +96,6 @@ You can also put dimensions on complex numbers, if you're feeling particularly d
 ### Changelog
 **version 7**
  - Added complex numbers suport
-**version 8**
+
+**version 8 (still testing)**
  - Added dimensional analysis
