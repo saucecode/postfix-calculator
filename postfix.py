@@ -283,7 +283,7 @@ if __name__ == '__main__':
 		input = raw_input
 	
 	while 1:
-		userinput = input('>> ')
+		userinput = raw_input('>> ')
 		if not userinput: continue
 		symbols = generate_symbols(userinput)
 		
