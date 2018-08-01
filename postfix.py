@@ -55,7 +55,7 @@ def countFunctionArguments(func):
 
 DIMENSIONS = ['kg', 'mol', 'K', 'm', 's', 'A']
 
-regexpr = '(\\.|\\/)?({})(\\^\\d+(\\.\\d*)?)?'.format('|'.join(DIMENSIONS))
+regexpr = '-?(\\.|\\/)?({})(\\^\\d+(\\.\\d*)?)?'.format('|'.join(DIMENSIONS))
 
 def is_number(s):
 	try:
@@ -96,14 +96,14 @@ class Symbol:
 		elif val in OPERATIONS:
 			self.type = 'operation'
 			self.value = val
-		elif not val[0].isdigit():
-			self.type = 'variable'
-			self.value = val
 		elif re.findall(regexpr, val) or dims:
 			self.type = 'dimension'
 			self.value = complex( re.sub(regexpr, '', val) )
 			if not dims:
 				self.dims = find_units(re.findall(regexpr, val))
+		elif not val[0].isdigit():
+			self.type = 'variable'
+			self.value = val
 		else:
 			raise Exception('Symbol unidentified')
 		
@@ -280,7 +280,7 @@ if __name__ == '__main__':
 	try:
 		raw_input
 	except:
-		input = raw_input
+		raw_input = input
 	
 	while 1:
 		userinput = raw_input('>> ')
