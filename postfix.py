@@ -73,7 +73,9 @@ def countFunctionArguments(func):
 	except:
 		return len(inspect.getargspec(func).args)
 
-regexpr = '(\\.|\\/)?(m|s|kg|K|C)(\\^\\d+(\\.\\d*)?)?'
+DIMENSIONS = ['kg', 'mol', 'K', 'm', 's', 'A']
+
+regexpr = '(\\.|\\/)?({})(\\^\\d+(\\.\\d*)?)?'.format('|'.join(DIMENSIONS))
 
 def is_number(s):
 	try:
@@ -104,6 +106,9 @@ def find_units(groups : str):
 class Symbol:
 	def __init__(self, val : str, dims = None):
 		self.dims = dims
+		
+		if isinstance(val, str) and val[0] == '.':
+			val = '0' + val
 		
 		if is_number(val):
 			self.type = 'number'
@@ -228,12 +233,14 @@ def units_string(units_d : dict):
 		return ''
 	units_d = {**units_d}
 	
+	if all( [units_d[key] == 0 for key in units_d] ): return ''
+	
 	for key in units_d:
 		units_d[key] = units_d[key].real if isinstance(units_d[key], complex) else units_d[key]
 	
 	output = ''
 	count = 0
-	for key in sorted(units_d, key=lambda v:['kg','m','s','K', 'C'].index(v)):
+	for key in sorted(units_d, key=DIMENSIONS.index):
 		if units_d[key] == 0: continue
 		if units_d[key] > 0:
 			if units_d[key] == 1:
@@ -279,7 +286,7 @@ def quickly(s : str):
 	return result
 
 if __name__ == '__main__':
-	print('saucecode\'s postfix v8-beta    2018-07-31')
+	print('saucecode\'s postfix v8-beta    2018-08-01')
 	
 	'''
 	tests = [
