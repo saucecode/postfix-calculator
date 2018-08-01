@@ -1,29 +1,9 @@
-import re, cmath, math, inspect, readline
+#!/usr/bin/env python
+# postfix.py - a postfix calculator for python 2 & 3
+# version 8-beta    2018-08-01
 
-'''OPERATIONS = {
-	'+' : lambda a,b: Symbol(a.value+b.value),
-	'-' : lambda a,b: Symbol(a.value-b.value),
-	'/' : lambda a,b: Symbol(b.value/a.value),
-	'*' : lambda a,b:Symbol(a.value*b.value),
-	'**' : lambda a,b:Symbol(b.value**a.value),
-	'sin' : lambda a:Symbol(cmath.sin(a.value)),
-	'cos' : lambda a:Symbol(cmath.cos(a.value)),
-	'tan' : lambda a:Symbol(cmath.tan(a.value)),
-	'atan' : lambda a:Symbol(cmath.atan(a.value)),
-	'asin' : lambda a:Symbol(cmath.asin(a.value)),
-	'acos' : lambda a:Symbol(cmath.acos(a.value)),
-	'sqrt' : lambda a:Symbol(a.value**0.5),
-	'%' : lambda a,b:Symbol(b.value%a.value),
-	'ln' : lambda a:Symbol(cmath.log(a.value)),
-	'log' : lambda a,b:Symbol(cmath.log(b.value,a.value)),
-	'rad' : lambda a:Symbol(math.radians(a.value.real)),
-	'deg' : lambda a:Symbol(math.degrees(a.value.real)),
-	
-	'arg' : lambda a:Symbol(cmath.phase(a.value)),
-	'abs' : lambda a:Symbol( (a.value.real*a.value.real + a.value.imag*a.value.imag)**0.5),
-	'Re' : lambda a:Symbol(a.value.real),
-	'Im' : lambda a:Symbol(a.value.imag),
-}'''
+from __future__ import print_function
+import re, cmath, math, inspect, readline
 
 variables = {}
 
@@ -53,7 +33,7 @@ OPERATIONS = {
 	'asin' : lambda a:a.trigfunc(cmath.asin),
 	'acos' : lambda a:a.trigfunc(cmath.acos),
 	'sqrt' : lambda a:a.pow(Symbol('0.5')),
-	'%' : lambda a,b:b%a,
+	'%' : lambda a,b:b.modulo(a),
 	'ln' : lambda a:a.log(),
 	'log' : lambda a,b:a.log(b),
 	'rad' : lambda a:a.trigfunc(lambda z: math.radians(z.real)),
@@ -84,7 +64,7 @@ def is_number(s):
 	except ValueError:
 		return False
 
-def find_units(groups : str):
+def find_units(groups):
 	units = {}
 	
 	for matches in groups:
@@ -104,7 +84,7 @@ def find_units(groups : str):
 	return units
 
 class Symbol:
-	def __init__(self, val : str, dims = None):
+	def __init__(self, val, dims = None):
 		self.dims = dims
 		
 		if isinstance(val, str) and val[0] == '.':
@@ -214,10 +194,19 @@ class Symbol:
 		
 		return Symbol(function(self.value))
 	
+	def modulo(self, other):
+		if any(symbol.type not in ['dimension', 'number'] for symbol in [self, other] ):
+			raise NotImplementedError('For types: {}, {}'.format(self.type, other.type))
+		
+		if any( symbol.value.imag != 0 for symbol in [self, other] ):
+			print('WARNING: Modulo operation on a complex number. Imaginary parts discarded.')
+		
+		return Symbol( other.value.real % self.value.real )
+	
 	def __repr__(self):
 		return 'Symbol({}, {}, {})'.format(self.type[:3], self.value, self.dims)
 
-def do_postfix(symbols : list):
+def do_postfix(symbols):
 	symbols = list(symbols)
 	while 'operation' in [i.type for i in symbols]:
 		sym = [i for i in symbols if i.type == 'operation'][0]
@@ -228,10 +217,10 @@ def do_postfix(symbols : list):
 		
 	return symbols
 
-def units_string(units_d : dict):
+def units_string(units_d):
 	if not units_d:
 		return ''
-	units_d = {**units_d}
+	units_d = dict( units_d )
 	
 	if all( [units_d[key] == 0 for key in units_d] ): return ''
 	
@@ -261,7 +250,7 @@ def units_string(units_d : dict):
 def outputResult(result):
 	return ', '.join([ (str(complex(item.value)) if complex(item.value).imag != 0 else str(complex(item.value).real)) + units_string(item.dims) for item in result])
 
-def generate_symbols(instr : str):
+def generate_symbols(instr):
 	symbols = [Symbol(i) for i in instr.split(' ')]
 		
 	for index,sym in enumerate(symbols):
@@ -278,7 +267,7 @@ variables = {
 	'\\': Symbol('0')
 }
 
-def quickly(s : str):
+def quickly(s):
 	# string comes in, string goes out. put this on your chatbot. maintains variables state
 	symbols_result = do_postfix( generate_symbols(s) )
 	result = outputResult( symbols_result )
@@ -288,28 +277,10 @@ def quickly(s : str):
 if __name__ == '__main__':
 	print('saucecode\'s postfix v8-beta    2018-08-01')
 	
-	'''
-	tests = [
-		'10 20 + 5 * 8 /',
-		'2s 3 ** -1 sqrt *',
-		'1.005kg.m^2/s^2/kg/K 400K * 18kg *',
-		'3.14 cos',
-		'1.005kg.m^2/s^2/kg/K Cp =', # specific heat of water
-		'12kg mass =',
-		'400K deltaT =',
-		'Cp mass deltaT * * E =',
-	]
-	
-	for test in tests:
-		symbols = [Symbol(i) for i in test.split(' ')]
-		
-		for index,sym in enumerate(symbols):
-			if sym.type == 'variable' and (index+1 >= len(symbols) or not symbols[index+1].value == '=') and sym.value in variables:
-				symbols[index] = variables[sym.value]
-			
-		symbols = do_postfix(symbols)
-		print(test, '=>', outputResult(symbols))
-	'''
+	try:
+		raw_input
+	except:
+		input = raw_input
 	
 	while 1:
 		userinput = input('>> ')
