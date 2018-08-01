@@ -96,14 +96,14 @@ class Symbol:
 		elif val in OPERATIONS:
 			self.type = 'operation'
 			self.value = val
+		elif not val[0].isdigit() and not val[0] == '-':
+			self.type = 'variable'
+			self.value = val
 		elif re.findall(regexpr, val) or dims:
 			self.type = 'dimension'
 			self.value = complex( re.sub(regexpr, '', val) )
 			if not dims:
 				self.dims = find_units(re.findall(regexpr, val))
-		elif not val[0].isdigit():
-			self.type = 'variable'
-			self.value = val
 		else:
 			raise Exception('Symbol unidentified')
 		
