@@ -94,8 +94,12 @@ You can also put dimensions on complex numbers, if you're feeling particularly d
      120.0
 
 ### Changelog
-**version 7**
- - Added complex numbers suport
+**version 9 (in development)**
+ - (Planned) Full rewrite, implementation of all features in version 8
+ - (Maybe) Numerical integrator
 
-**version 8 (still testing)**
- - Added dimensional analysis
+**version 8**
+ - Added dimensional analysis (all S.I. units)
+
+**version 7**
+ - Added complex numbers support
