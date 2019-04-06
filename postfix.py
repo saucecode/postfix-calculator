@@ -111,7 +111,7 @@ class Symbol:
 		
 	
 	def __add__(self, other):
-		print('Adding: {} and {}'.format(self, other))
+		#print('Adding: {} and {}'.format(self, other))
 		if other.type in ['number', 'dimension'] and self.type in ['number', 'dimension']:
 			if other.type == 'dimension' and self.dims != other.dims:
 				print('WARNING: Mismatched dimensions in addition operation.')
@@ -119,7 +119,7 @@ class Symbol:
 		raise NotImplementedError('For types: {}, {}'.format(self.type, other.type))
 	
 	def __sub__(self, other):
-		print('Subbing: {} and {}'.format(self, other))
+		#print('Subbing: {} and {}'.format(self, other))
 		if other.type in ['number', 'dimension'] and self.type in ['number', 'dimension']:
 			if other.type == 'dimension' and self.dims != other.dims:
 				print('WARNING: Mismatched dimensions in subtraction operation.')
