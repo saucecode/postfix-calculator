@@ -57,7 +57,7 @@ class Calculator:
 			'Re' : lambda a:a.real,
 			'Im' : lambda a:a.imag,
 	
-			'=': self.variableAssign
+			'=': lambda a,b:self.variableAssign(a,b)
 		}
 		
 		self.stack = []
@@ -92,12 +92,10 @@ class Calculator:
 			args = countFunctionArguments(func)
 			
 			popped = symbols[index-args:index][::-1]
-			print(popped)
 			result = func(*popped)
 			if result: symbols.insert(index+1, result)
 			del symbols[index-args:index+1]
 			
-			print('Symbols remaining: ', symbols)
 			search = next(
 				((index, sym) for index, sym in enumerate(symbols) \
 				if sym.type == Symbol.Operation), None)
