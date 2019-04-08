@@ -30,7 +30,8 @@ class Calculator:
 			'-' : lambda a,b:b-a,
 			'/' : lambda a,b:b / a,
 			'*' : lambda a,b:a*b,
-			'**' : lambda a,b:a ** b,
+			'**' : lambda a,b:b ** a,
+			'~': lambda a: a.inverse(),
 		
 			'sin' : lambda a:a.trigfunc(cmath.sin),
 			'cosec' : lambda a:a.trigfunc(cmath.sin).inverse(),
@@ -43,21 +44,22 @@ class Calculator:
 			'asin' : lambda a:a.trigfunc(cmath.asin),
 			'acos' : lambda a:a.trigfunc(cmath.acos),
 		
-			'sqrt' : lambda a:a.pow(Symbol(1/2.0)),
-			'cbrt' : lambda a:a.pow(Symbol(1/3.0)),
-			'isqrt' : lambda a:a.pow(Symbol(1/2.0)).inverse(),
-			'icbrt' : lambda a:a.pow(Symbol(1/3.0)).inverse(),
+			'sqrt' : lambda a:a ** Symbol(self, 1/2.0),
+			'cbrt' : lambda a:a ** Symbol(self, 1/3.0),
+			'isqrt' : lambda a:(a ** Symbol(self, 1/2.0)).inverse(),
+			'icbrt' : lambda a:(a ** Symbol(self, 1/3.0)).inverse(),
 		
 			'%' : lambda a,b:b.modulo(a),
-			'ln' : lambda a:a.log(),
-			'log' : lambda a,b:a.log(b),
+			'exp': lambda a:Symbol(self, math.e) ** a,
+			'ln' : lambda a:a.nat_log(),
+			'log' : lambda a,b:b.log(a),
 			'rad' : lambda a:a.trigfunc(lambda z: math.radians(z.real)),
 			'deg' : lambda a:a.trigfunc(lambda z: math.degrees(z.real)),
 	
 			'arg' : lambda a:a.trigfunc(cmath.phase),
 			'abs' : lambda a:a.trigfunc( lambda z:math.hypot(z.real, z.imag) ),
-			'Re' : lambda a:a.real,
-			'Im' : lambda a:a.imag,
+			'Re' : lambda a:Symbol(self, a.value.real),
+			'Im' : lambda a:Symbol(self, a.value.imag),
 	
 			'=': lambda a,b:self.variableAssign(a,b)
 		}
@@ -103,9 +105,11 @@ class Calculator:
 				if sym.type == Symbol.Operation), None)
 		
 		self.stack += [sym if sym not in self.variables else self.variables[sym] for sym in symbols]
-		self.variableAssign(Symbol(self, '\\'), self.stack[-1])
+		if len(self.stack) > 0: self.variableAssign(Symbol(self, '\\'), self.stack[-1])
 	
 	def variableAssign(self, variableSymbol, value):
+		if value in self.variables:
+			value = self.variables[value]
 		self.variables[variableSymbol] = value
 	
 	def __str__(self):
@@ -165,12 +169,15 @@ class Symbol:
 	def __mul__(self, other): return Symbol(self.calc, self.value * other.value)
 	def __truediv__(self, other): return Symbol(self.calc, self.value / other.value)
 	def __pow__(self, other): return Symbol(self.calc, self.value**other.value)
+	def trigfunc(self, func): return Symbol(self.calc, func(self.value))
+	def log(self, base): return Symbol(self.calc, cmath.log(self.value, base.value))
+	def nat_log(self): return Symbol(self.calc, cmath.log(self.value))
 	
 	def inverse(self):
 		return Symbol(self.calc, 1.0 / self.value)
 	
-	def trigfunc(self, func):
-		pass
+	def pow(self, symbol):
+		return Symbol(self.calc, self.value ** symbol.value)
 	
 	def __str__(self):
 		return 'Symbol({})'.format(self._value)
