@@ -6,6 +6,8 @@ from __future__ import print_function, division
 
 import readline, inspect, cmath, math, re
 
+import sys
+sys.setrecursionlimit(100)
 
 def is_number(s):
 	try:
@@ -63,9 +65,9 @@ class Calculator:
 		self.stack = []
 		self.variables = {}
 		self.variables = {
-			Symbol(self, 'pi'): [Symbol(self, math.pi)],
-			Symbol(self, 'e'): [Symbol(self, math.e)],
-			Symbol(self, '\\'): [Symbol(self, 0)]
+			Symbol(self, 'pi'): Symbol(self, math.pi),
+			Symbol(self, 'e'): Symbol(self, math.e),
+			Symbol(self, '\\'): Symbol(self, 0)
 		}
 	
 	def execute(self, string):
@@ -100,10 +102,14 @@ class Calculator:
 				((index, sym) for index, sym in enumerate(symbols) \
 				if sym.type == Symbol.Operation), None)
 		
-		self.stack += symbols
+		self.stack += [sym if sym not in self.variables else self.variables[sym] for sym in symbols]
+		self.variableAssign(Symbol(self, '\\'), self.stack[-1])
 	
-	def variableAssign(self, name, value):
-		self.variables[name] = value
+	def variableAssign(self, variableSymbol, value):
+		self.variables[variableSymbol] = value
+	
+	def __str__(self):
+		return str([i.value for i in self.stack])
 
 class Symbol:
 
@@ -126,7 +132,13 @@ class Symbol:
 	@property
 	def value(self):
 		if self.type == Symbol.Variable:
-			return self.calc.variables.get(self, Symbol(self, 0))._value
+			# print(self)
+			# return self.calc.variables.get(self, Symbol(self.calc, 0))._value
+			if self in self.calc.variables:
+				return self.calc.variables[self].value
+			else:
+				return self._value
+		
 		return self._value
 	
 	def __init__(self, calc, value):
@@ -141,8 +153,7 @@ class Symbol:
 			self._type = Symbol.Operation
 			self._value = value
 			
-		elif value in self.calc.variables or value.isalpha() \
-		     or value == '\\':
+		elif value.isalpha() or value == '\\':
 			self._type = Symbol.Variable
 			self._value = value
 		
@@ -168,15 +179,27 @@ class Symbol:
 		return 'Symbol({}, {})'.format(self._value, self.type)
 	
 	def __eq__(self, other):
+		# print('eq', self, other)
 		return other._value == self._value and other.type == self.type
 	
 	def __hash__(self):
 		return hash(self._value)
-		
 
 if __name__ == '__main__':
 	c = Calculator()
+	
+	try:
+		raw_input
+	except:
+		raw_input = input
+	
+	while 1:
+		i = raw_input('> ')
+		c.execute(i)
+		print(c)
+	
 	c.execute('4 6 + 2 / a = a a +')
+	# c.execute('4 6 +')
 	print(c.stack)
 	print(c.variables)
 	
